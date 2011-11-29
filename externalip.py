@@ -14,6 +14,6 @@ start = html.find('ha4')
 end = start + 50
 
 trim = html[start:end]
-trim2=re.compile(u'(?P<ip>\d+\.\d+\.\d+\.\d+)').search(trim).groupdict()
+trim2=re.compile(u'(?P<ip>\d+\.\d+\.\d+\.\d+)').search(trim).groupdict() #watch this line if the script stops working
 
 print trim2['ip']
