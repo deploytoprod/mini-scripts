@@ -6,10 +6,7 @@ import urllib
 import re
 
 def get_ip():
-    url = urllib.URLopener()
-    resp = url.open('http://myip.dk')
-    html = resp.read()
-    group=re.compile(u'(?P<ip>\d+\.\d+\.\d+\.\d+)').search(html).groupdict()
+    group = re.compile(u'(?P<ip>\d+\.\d+\.\d+\.\d+)').search(urllib.URLopener().open('http://jsonip.com/').read()).groupdict()
     return group['ip']
 
 if __name__ == '__main__':
