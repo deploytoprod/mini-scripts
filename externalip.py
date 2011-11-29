@@ -1,19 +1,16 @@
 '''
-This script just finds your external IP address
-Bugs and tickets, please email me: dev@rafalopes.com.br :)
+Finds your external IP address
 '''
 
 import urllib
 import re
 
-url = urllib.URLopener()
-resp = url.open('http://myip.dk')
-html = resp.read()
+def get_ip():
+    url = urllib.URLopener()
+    resp = url.open('http://myip.dk')
+    html = resp.read()
+    group=re.compile(u'(?P<ip>\d+\.\d+\.\d+\.\d+)').search(html).groupdict()
+    return group['ip']
 
-start = html.find('ha4')
-end = start + 50
-
-trim = html[start:end]
-trim2=re.compile(u'(?P<ip>\d+\.\d+\.\d+\.\d+)').search(trim).groupdict()
-
-print trim2['ip']
+if __name__ == '__main__':
+    print get_ip()
