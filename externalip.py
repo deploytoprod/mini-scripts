@@ -11,9 +11,8 @@ resp = url.open('http://myip.dk')
 html = resp.read()
 
 start = html.find('ha4') #watch this line if the script stops working
-end = start + 50
+end = start + 50 #a bunch of chars to play along :)
 
-trim = html[start:end]
-trim=re.compile(u'(?P<ip>\d+\.\d+\.\d+\.\d+)').search(trim).groupdict()
+trim=re.compile(u'(?P<ip>\d+\.\d+\.\d+\.\d+)').search(html[start:end]).groupdict()
 
 print trim['ip']
