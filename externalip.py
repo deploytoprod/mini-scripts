@@ -10,10 +10,10 @@ url = urllib.URLopener()
 resp = url.open('http://myip.dk')
 html = resp.read()
 
-start = html.find('ha4')
+start = html.find('ha4') #watch this line if the script stops working
 end = start + 50
 
 trim = html[start:end]
-trim2=re.compile(u'(?P<ip>\d+\.\d+\.\d+\.\d+)').search(trim).groupdict() #watch this line if the script stops working
+trim=re.compile(u'(?P<ip>\d+\.\d+\.\d+\.\d+)').search(trim).groupdict()
 
-print trim2['ip']
+print trim['ip']
