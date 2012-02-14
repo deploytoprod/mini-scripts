@@ -2,17 +2,20 @@
 # ABOUT: this is a script to maintenance tomcat services
 # AUTHOR: Rafael Lopes
 # CREATED AT: 20120213
-# CURRENT VERSION: 1.1
+# CURRENT VERSION: 1.2
 
 # CHANGELOG
+# 1.2 - backups current war file on deploy process
 # 1.1 - mispell fixes and more verbose scp function
 # 1.0 - initial release
 
 #DO NOT TOUCH THOSE VARIABLES. DO NOT COMMENT THEM. NEVER!!
 LOGDIR=/usr/tomcat/apache-tomcat-7.0.21/logs
 WEBAPPSDIR=/usr/tomcat/apache-tomcat-7.0.21/webapps
+BACKUPDIR=/tmp/Backups
 REMOTEADDR=`echo $SSH_CLIENT |cut -d ' ' -f 1`
-REMOTEFILE=/root/placeholder/deployfile
+REMOTEFILE=/root/placeholder/file
+NOW=`date +"%Y%m%d%H%M%S"`
 
 checkDirExists(){
        if [ ! -d "$1" ]; then
@@ -66,7 +69,7 @@ waitUntilJpsHalted(){
 }
 removeFiles(){
        checkDirExists $1
-       rm -fv $1/*
+       rm -Rfv $1/*
        echo -en "\033[32mDirectory $1 now empty.\033[0m\n"
 }
 startTomcat(){
@@ -77,10 +80,9 @@ startTomcat(){
                return 1;
        else
                echo -e "\033[32mStarting tomcat...\033[0m"
-               sleep 2
                service tomcat start
+               sleep 2
                echo -ne "\033[32m"
-               sleep 1
                service tomcat status
                echo -ne "\033[0m"
                return 0;
@@ -99,13 +101,32 @@ getFileViaSCP(){
        fi
 }
 printUsage(){
-       echo -en "\n\033[35mtomcatmaintenance v1.0\033[0m usage methods:\n\n"
+       echo -en "\n\033[35mtomcatmaintenance v1.2\033[0m usage methods:\n\n"
        echo -e "start\t\tChecks if tomcat is started, it not, start it"
        echo -e "stop\t\tChecks if tomcat is stopped, it not, stop it"
        echo -e "status\t\tPrints the tomcat status"
        echo -e "restart\t\tStops tomcat if not stopped, clean the logs and start it again (use with care)"
-       echo -e "deploy\t\tDo the same as restart, but also clean webapps folder and put a new file on it"
+       echo -e "deploy\t\tDo the same as restart, but also clean webapps folder and put a new war file on it"
        echo
+}
+makeBackup(){
+       echo -e "\033[32mCreating directory $BACKUPDIR/$NOW...\033[0m"
+       mkdir -p $BACKUPDIR/$NOW
+       mkdirexitcode=$?
+       if [ $mkdirexitcode -ne 0 ]; then
+               echo -e "\033[31mError on directory $BACKUPDIR/$NOW creation. Check permissions and everything else.\033[0m"
+               return 1
+       fi
+       echo -e "\033[32mBacking up $1 to $BACKUPDIR/$NOW...\033[0m"
+       cp -v $1 $BACKUPDIR/$NOW
+       cpexitcode=$?
+       if [ $cpexitcode -ne 0 ]; then
+               echo -e "\033[31mError on file copy! Check if $1 content exists on $BACKUPDIR/$NOW folder.\033[0m"
+               return 2
+       fi
+       #all done, lets simbolic to latest path...
+       rm -f $BACKUPDIR/latest
+       ln -s $BACKUPDIR/$NOW $BACKUPDIR/latest
 }
 
 case $1 in
@@ -147,6 +168,7 @@ case $1 in
                echo
                listFiles $WEBAPPSDIR
                echo
+               makeBackup $WEBAPPSDIR/File.war
                removeFiles $WEBAPPSDIR
                echo
                getFileViaSCP $REMOTEADDR $REMOTEFILE $WEBAPPSDIR
