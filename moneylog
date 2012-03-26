@@ -1,0 +1,14 @@
+#!/bin/sh -
+
+if [ $# != 4 ]; then
+	echo "Usage: `basename $0` <date> <value> <tag> \"description\""
+	exit
+fi
+
+if [ $1 == "hoje" ]; then
+	hoje=`date "+%Y-%m-%d"`
+else
+	hoje=$1
+fi
+
+printf "\n$hoje\t$2\t$3|$4" >> ~/Dropbox/Apps/MoneyLog\ Cloud/txt/03632-8.txt
