@@ -3,7 +3,7 @@
 function status
 {
        echo saindo com 43
-       return 3
+       return 43
 }
 
 status
